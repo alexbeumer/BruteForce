@@ -6,17 +6,14 @@
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
-
     <!-- Optional theme -->
     <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="/js/bootstrap.min.js"></script>
 
     <style>
         body{
             background-color: #000;
             color: #fff;
+            font-size: x-large;
         }
         td{
             width: 33%;
@@ -27,33 +24,57 @@
     </style>
 </head>
 <body>
+<div ng-app="myApp" ng-controller="myCtrl">
     <table class="table table-bordered">
-        <tr>
-            <td>
-                <h3>Alfa + Password123</h3>
-                <div class="techniek">
-                    techniek: alfa/wb
-                </div>
+        <tr ng-repeat="rijBruteforces in bruteforces">
+            <td ng-repeat="bruteforce in rijBruteforces">
+                <h1>{{bruteforce.techniek}}</h1>
                 <div class="status">
-                    Tijd bezig + aantal wachtwoorden geprobeerd
+                    {{bruteforce.tijdBezig}} seconden bezig en {{bruteforce.aantalPogingen}} wachtwoorden geprobeerd
                 </div>
                 <div class="pogingen">
                     Wachtwoorden pogingen:
                     <ul>
-                        <li>password1</li>
-                        <li>password12</li>
-                        <li class="geraden">password123</li>
+                        <li ng-repeat="poging in bruteforce.laatsteVijfPogingen">
+                            {{poging}}
+                        </li>
                     </ul>
                 </div>
             </td>
-            <td>2</td>
-            <td>3</td>
-        </tr>
-        <tr>
-            <td>11</td>
-            <td>12</td>
-            <td>13</td>
         </tr>
     </table>
+</div>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script>
+    angular.module("myApp", [])
+        .controller("myCtrl", function($scope){
+            $scope.bruteforces = [
+                [{"techniek":"alfa", "wachtwoord":"password", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
+                {"techniek":"alfa", "wachtwoord":"password123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
+                {"techniek":"alfa", "wachtwoord":"p4ssw0rd123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
+                ],[{"techniek":"woordenboek", "wachtwoord":"password", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
+                {"techniek":"woordenboek", "wachtwoord":"password123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
+                {"techniek":"woordenboek", "wachtwoord":"p4ssw0rd123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []}
+            ]];
+
+            for(var i = 0; i < $scope.bruteforces.length; i++) {
+                for(var j = 0; j < $scope.bruteforces[i].length; j++) {
+                    var bruteforce = $scope.bruteforces[i][j];
+                    verhoogPogingen(bruteforce);
+                }
+            }
+        });
+
+    function verhoogPogingen(bruteforce) {
+        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
+            bruteforce.aantalPogingen++;
+            window.setTimeout(verhoogPogingen(bruteforce), 1000);
+        }
+    }
+</script>
 </body>
 </html>
