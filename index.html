@@ -24,7 +24,7 @@
     </style>
 </head>
 <body>
-<div ng-app="myApp" ng-controller="myCtrl">
+<div ng-app="myApp">
     <table class="table table-bordered">
         <tr ng-repeat="rijBruteforces in bruteforces">
             <td ng-repeat="bruteforce in rijBruteforces">
@@ -50,31 +50,97 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script>
-    angular.module("myApp", [])
-        .controller("myCtrl", function($scope){
-            $scope.bruteforces = [
-                [{"techniek":"alfa", "wachtwoord":"password", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
-                {"techniek":"alfa", "wachtwoord":"password123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
-                {"techniek":"alfa", "wachtwoord":"p4ssw0rd123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
-                ],[{"techniek":"woordenboek", "wachtwoord":"password", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
-                {"techniek":"woordenboek", "wachtwoord":"password123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []},
-                {"techniek":"woordenboek", "wachtwoord":"p4ssw0rd123", "tijdBezig": 0, "aantalPogingen": 0, "geraden": false, "laatsteVijfPogingen": []}
-            ]];
-
-            for(var i = 0; i < $scope.bruteforces.length; i++) {
-                for(var j = 0; j < $scope.bruteforces[i].length; j++) {
-                    var bruteforce = $scope.bruteforces[i][j];
-                    verhoogPogingen(bruteforce);
+    var app = angular.module("myApp", []);
+        app.run(function($rootScope, $timeout, $q){
+            function readTextFile(file)
+            {
+                var rawFile = new XMLHttpRequest();
+                rawFile.open("GET", file, false);
+                rawFile.onreadystatechange = function ()
+                {
+                    if(rawFile.readyState === 4)
+                    {
+                        if(rawFile.status === 200)
+                        {
+                            var allText = rawFile.responseText;
+                            $rootScope.woordenboek = allText;
+                            console.log($rootScope.woordenboek);
+                            startBruteForcing();
+                        }
+                    }
                 }
+                rawFile.send(null);
             }
-        });
+            readTextFile("resources/wordlist.txt");
+            function startBruteForcing() {
+                $rootScope.bruteforces = [
+                    [{
+                        "techniek": "alfa",
+                        "wachtwoord": "password",
+                        "tijdBezig": 0,
+                        "aantalPogingen": 0,
+                        "geraden": false,
+                        "laatsteVijfPogingen": []
+                    },
+                        {
+                            "techniek": "alfa",
+                            "wachtwoord": "password123",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        },
+                        {
+                            "techniek": "alfa",
+                            "wachtwoord": "p4ssw0rd123",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        },
+                    ], [{
+                        "techniek": "woordenboek",
+                        "wachtwoord": "password",
+                        "tijdBezig": 0,
+                        "aantalPogingen": 0,
+                        "geraden": false,
+                        "laatsteVijfPogingen": []
+                    },
+                        {
+                            "techniek": "woordenboek",
+                            "wachtwoord": "password123",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        },
+                        {
+                            "techniek": "woordenboek",
+                            "wachtwoord": "p4ssw0rd123",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        }
+                    ]];
 
-    function verhoogPogingen(bruteforce) {
-        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
-            bruteforce.aantalPogingen++;
-            window.setTimeout(verhoogPogingen(bruteforce), 1000);
-        }
-    }
+                for (var i = 0; i < $rootScope.bruteforces.length; i++) {
+                    for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
+                        var bruteforce = $rootScope.bruteforces[i][j];
+                        doeEenPoging(bruteforce);
+                    }
+                }
+
+                function doeEenPoging(bruteforce) {
+                    if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
+                        bruteforce.aantalPogingen++;
+                        $timeout(function () {
+                            doeEenPoging(bruteforce)
+                        }, 10);
+                    }
+                }
+            };
+        });
 </script>
 </body>
 </html>
