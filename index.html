@@ -53,17 +53,17 @@
 <script>
     var app = angular.module("myApp", []);
 
-        app.controller('MyCtrl', function($scope, $rootScope){
-           $scope.woordenboek = $rootScope.woordenboek;
-        });
+    app.controller('MyCtrl', function($scope, $rootScope){
+        $scope.woordenboek = $rootScope.woordenboek;
+    });
 
-        app.run(function($rootScope, $timeout, $q, $http){
-            $rootScope.woordenboek = null;
-            $http.get("resources/wordlist.txt").then(function (response) {
-                $rootScope.woordenboek = response.data;
-                console.log($rootScope.woordenboek);
-            });
-            //readTextFile("resources/wordlist.txt");
+    app.run(function($rootScope, $timeout, $q, $http){
+        $rootScope.woordenboek = null;
+        $http.get("resources/wordlist.txt").then(function (response) {
+            $rootScope.woordenboek = response.data;
+            console.log($rootScope.woordenboek);
+        });
+        //readTextFile("resources/wordlist.txt");
 //            function readTextFile(file)
 //            {
 //                var rawFile = new XMLHttpRequest();
@@ -84,78 +84,77 @@
 //                rawFile.send(null);
 //            }
 
-            startBruteForcing();
+        startBruteForcing();
 
 
-            function startBruteForcing() {
-                $rootScope.bruteforces = [
-                    [{
-                        "techniek": "alfa",
-                        "wachtwoord": "password",
-                        "tijdBezig": 0,
-                        "aantalPogingen": 0,
-                        "geraden": false,
-                        "laatsteVijfPogingen": []
-                    },
-                        {
-                            "techniek": "alfa",
-                            "wachtwoord": "password123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                        {
-                            "techniek": "alfa",
-                            "wachtwoord": "p4ssw0rd123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                    ], [{
-                        "techniek": "woordenboek",
-                        "wachtwoord": "password",
-                        "tijdBezig": 0,
-                        "aantalPogingen": 0,
-                        "geraden": false,
-                        "laatsteVijfPogingen": []
-                    },
-                        {
-                            "techniek": "woordenboek",
-                            "wachtwoord": "password123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                        {
-                            "techniek": "woordenboek",
-                            "wachtwoord": "p4ssw0rd123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        }
-                    ]];
+        function startBruteForcing() {
+            $rootScope.bruteforces = [
+                [{
+                    "techniek": "alfa",
+                    "wachtwoord": "password",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                },
+                {
+                    "techniek": "alfa",
+                    "wachtwoord": "password123",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                },
+                {
+                    "techniek": "alfa",
+                    "wachtwoord": "p4ssw0rd123",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                }],
+                [{
+                    "techniek": "woordenboek",
+                    "wachtwoord": "password",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                },
+                {
+                    "techniek": "woordenboek",
+                    "wachtwoord": "password123",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                },
+                {
+                    "techniek": "woordenboek",
+                    "wachtwoord": "p4ssw0rd123",
+                    "tijdBezig": 0,
+                    "aantalPogingen": 0,
+                    "geraden": false,
+                    "laatsteVijfPogingen": []
+                }]];
 
-                for (var i = 0; i < $rootScope.bruteforces.length; i++) {
-                    for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
-                        var bruteforce = $rootScope.bruteforces[i][j];
-                        doeEenPoging(bruteforce);
-                    }
+            for (var i = 0; i < $rootScope.bruteforces.length; i++) {
+                for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
+                    var bruteforce = $rootScope.bruteforces[i][j];
+                    doeEenPoging(bruteforce);
                 }
+            }
 
-                function doeEenPoging(bruteforce) {
-                    if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
-                        bruteforce.aantalPogingen++;
-                        $timeout(function () {
-                            doeEenPoging(bruteforce)
-                        }, 10);
-                    }
+            function doeEenPoging(bruteforce) {
+                if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
+                    bruteforce.aantalPogingen++;
+                    $timeout(function () {
+                        doeEenPoging(bruteforce)
+                    }, 10);
                 }
-            };
-        });
+            }
+        };
+    });
 </script>
 </body>
 </html>
