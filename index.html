@@ -53,16 +53,99 @@
 <script>
     var app = angular.module("myApp", []);
 
-        app.controller('MyCtrl', function($scope, $rootScope){
-           $scope.woordenboek = $rootScope.woordenboek;
+        app.controller('MyCtrl', function($scope, $rootScope, $timeout){
+            $scope.$on('config-loaded', function(){
+                $scope.woordenboek = $rootScope.woordenboek;
+                console.log($scope.woordenboek);
+                startBruteForcing();
+
+                function startBruteForcing() {
+                    $rootScope.bruteforces = [
+                        [{
+                            "techniek": "alfa",
+                            "wachtwoord": "password",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        },
+                            {
+                                "techniek": "alfa",
+                                "wachtwoord": "password123",
+                                "tijdBezig": 0,
+                                "aantalPogingen": 0,
+                                "geraden": false,
+                                "laatsteVijfPogingen": []
+                            },
+                            {
+                                "techniek": "alfa",
+                                "wachtwoord": "p4ssw0rd123",
+                                "tijdBezig": 0,
+                                "aantalPogingen": 0,
+                                "geraden": false,
+                                "laatsteVijfPogingen": []
+                            },
+                        ], [{
+                            "techniek": "woordenboek",
+                            "wachtwoord": "password",
+                            "tijdBezig": 0,
+                            "aantalPogingen": 0,
+                            "geraden": false,
+                            "laatsteVijfPogingen": []
+                        },
+                            {
+                                "techniek": "woordenboek",
+                                "wachtwoord": "password123",
+                                "tijdBezig": 0,
+                                "aantalPogingen": 0,
+                                "geraden": false,
+                                "laatsteVijfPogingen": []
+                            },
+                            {
+                                "techniek": "woordenboek",
+                                "wachtwoord": "p4ssw0rd123",
+                                "tijdBezig": 0,
+                                "aantalPogingen": 0,
+                                "geraden": false,
+                                "laatsteVijfPogingen": []
+                            }
+                        ]];
+
+                    for (var i = 0; i < $rootScope.bruteforces.length; i++) {
+                        for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
+                            var bruteforce = $rootScope.bruteforces[i][j];
+                            var teller = 1;
+                            doeEenPoging(bruteforce, teller);
+                        }
+                    }
+
+                    function doeEenPoging(bruteforce) {
+                        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!
+                            bruteforce.aantalPogingen++;
+                            $timeout(function () {
+                                doeEenPoging(bruteforce)
+                            }, 10);
+                        }
+                    }
+                };
+            });
         });
 
         app.run(function($rootScope, $timeout, $q, $http){
-            $rootScope.woordenboek = null;
-            $http.get("resources/wordlist.txt").then(function (response) {
-                $rootScope.woordenboek = response.data;
-                console.log($rootScope.woordenboek);
-            });
+            $http.get('resources/wordlist.txt')
+                    .success(function(data, status, headers, config) {
+                        $rootScope.woordenboek = data;
+                        $rootScope.$broadcast('config-loaded');
+                    })
+                    .error(function(data, status, headers, config) {
+                        // log error
+                        alert('error');
+                    });
+
+//            $http.get("resources/wordlist.txt").then(function (response) {
+//                $rootScope.woordenboek = response.data;
+//                console.log($rootScope.woordenboek);
+//            });
             //readTextFile("resources/wordlist.txt");
 //            function readTextFile(file)
 //            {
@@ -84,77 +167,10 @@
 //                rawFile.send(null);
 //            }
 
-            startBruteForcing();
+            //startBruteForcing();
 
 
-            function startBruteForcing() {
-                $rootScope.bruteforces = [
-                    [{
-                        "techniek": "alfa",
-                        "wachtwoord": "password",
-                        "tijdBezig": 0,
-                        "aantalPogingen": 0,
-                        "geraden": false,
-                        "laatsteVijfPogingen": []
-                    },
-                        {
-                            "techniek": "alfa",
-                            "wachtwoord": "password123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                        {
-                            "techniek": "alfa",
-                            "wachtwoord": "p4ssw0rd123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                    ], [{
-                        "techniek": "woordenboek",
-                        "wachtwoord": "password",
-                        "tijdBezig": 0,
-                        "aantalPogingen": 0,
-                        "geraden": false,
-                        "laatsteVijfPogingen": []
-                    },
-                        {
-                            "techniek": "woordenboek",
-                            "wachtwoord": "password123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        },
-                        {
-                            "techniek": "woordenboek",
-                            "wachtwoord": "p4ssw0rd123",
-                            "tijdBezig": 0,
-                            "aantalPogingen": 0,
-                            "geraden": false,
-                            "laatsteVijfPogingen": []
-                        }
-                    ]];
 
-                for (var i = 0; i < $rootScope.bruteforces.length; i++) {
-                    for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
-                        var bruteforce = $rootScope.bruteforces[i][j];
-                        doeEenPoging(bruteforce);
-                    }
-                }
-
-                function doeEenPoging(bruteforce) {
-                    if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!!
-                        bruteforce.aantalPogingen++;
-                        $timeout(function () {
-                            doeEenPoging(bruteforce)
-                        }, 10);
-                    }
-                }
-            };
         });
 </script>
 </body>
