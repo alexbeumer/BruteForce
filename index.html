@@ -52,7 +52,6 @@
 <script src="js/angular.min.js"></script>
 <script>
     var app = angular.module("myApp", []);
-
         app.controller('MyCtrl', function($scope, $rootScope, $timeout){
             $scope.$on('config-loaded', function(){
                 $scope.woordenboek = $rootScope.woordenboek;
@@ -141,7 +140,6 @@
                         // log error
                         alert('error');
                     });
-
 //            $http.get("resources/wordlist.txt").then(function (response) {
 //                $rootScope.woordenboek = response.data;
 //                console.log($rootScope.woordenboek);
@@ -168,9 +166,6 @@
 //            }
 
             //startBruteForcing();
-
-
-
         });
 </script>
 </body>
