@@ -44,10 +44,10 @@
                         </li>
                     </ul>
                 </div>
-                <div ng-show="{{bruteforce.geraden === true}}">
+                <div ng-show="bruteforce.geraden === true">
                     Bruteforce successvol, wachtwoord is <span class="geraden">{{bruteforce.wachtwoord}}</span>
                 </div>
-                <div ng-show="{{bruteforce.geraden === false && bruteforce.tijdBezig > 0}}" class="nietgeraden">
+                <div ng-show="bruteforce.geraden === false && bruteforce.tijdBezig > 0" class="nietgeraden">
                     Bruteforce niet successvol, wachtwoord is {{bruteforce.wachtwoord}}
                 </div>
             </td>
@@ -64,16 +64,17 @@
         app.controller('MyCtrl', function($scope, $rootScope, $timeout){
             $scope.$on('dictionary-loaded', function(){
                 $scope.woordenboek = $rootScope.woordenboek;
+                var chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
                 startBruteForcing();
 
                 function startBruteForcing() {
                     $rootScope.bruteforces = [
                         [{
                             "techniek": "alfa",
-                            "wachtwoord": "password",
+                            "wachtwoord": "aaaaaaba",
                             "tijdBezig": 0,
                             "aantalPogingen": 0,
-                            "geraden": false,
+                            "geraden": undefined,
                             "laatsteVijfPogingen": []
                         },
                             {
@@ -81,7 +82,7 @@
                                 "wachtwoord": "password123",
                                 "tijdBezig": 0,
                                 "aantalPogingen": 0,
-                                "geraden": false,
+                                "geraden": undefined,
                                 "laatsteVijfPogingen": []
                             },
                             {
@@ -89,7 +90,7 @@
                                 "wachtwoord": "p4ssw0rd123",
                                 "tijdBezig": 0,
                                 "aantalPogingen": 0,
-                                "geraden": false,
+                                "geraden": undefined,
                                 "laatsteVijfPogingen": []
                             },
                         ], [{
@@ -97,7 +98,7 @@
                             "wachtwoord": "password",
                             "tijdBezig": 0,
                             "aantalPogingen": 0,
-                            "geraden": false,
+                            "geraden": undefined,
                             "laatsteVijfPogingen": []
                         },
                             {
@@ -105,15 +106,15 @@
                                 "wachtwoord": "password1",
                                 "tijdBezig": 0,
                                 "aantalPogingen": 0,
-                                "geraden": false,
+                                "geraden": undefined,
                                 "laatsteVijfPogingen": []
                             },
                             {
                                 "techniek": "woordenboek",
-                                "wachtwoord": "p4ssw0rd123",
+                                "wachtwoord": "larisa1993",
                                 "tijdBezig": 0,
                                 "aantalPogingen": 0,
-                                "geraden": false,
+                                "geraden": undefined,
                                 "laatsteVijfPogingen": []
                             }
                         ]];
@@ -123,6 +124,13 @@
                             var bruteforce = $rootScope.bruteforces[i][j];
                             if(bruteforce.techniek === "woordenboek"){
                                 doePogingWoordenboek(bruteforce);
+                            }
+                            else{
+                                var teller = [0, 0, 0, 0, 0, 0, 0, 0];
+                                var start = new Date().getTime();
+
+                                doePogingAlpha(bruteforce, teller, start);
+
                             }
                         }
                     }
@@ -163,9 +171,55 @@
                     var end = new Date().getTime();
                     var time = end - start;
                     time = time / 1000;
-                    var seconds = time % 60;
+                    var seconds = time;
                     bruteforce.tijdBezig = seconds;
+                    if(bruteforce.geraden === undefined){
+                        bruteforce.geraden = false;
+                    }
                 }
+
+                function doePogingAlpha(bruteforce, teller, start) {
+                    if (bruteforce.geraden === undefined && bruteforce.aantalPogingen < 100000) {
+                        bruteforce.aantalPogingen++;
+                        teller[7]++;
+                        for(var i = 7; i >= 0; i--) {
+                            if(teller[i] >= 0) {
+                                if(teller[i] === chars.length) {
+                                    teller[i] = 0;
+                                    teller[i-1] = teller[i-1] + 1;
+                                }
+                            }
+                        }
+
+                        var string = "";
+                        for(var i = 7; i >= 0; i--) {
+                            if(teller[i] >= 0) {
+                                string = chars[teller[i]] + string;
+                            }
+                        }
+
+                        if(string === bruteforce.wachtwoord) {
+                            bruteforce.geraden = true;
+                        }
+
+                        bruteforce.laatsteVijfPogingen.unshift(string);
+                        if(bruteforce.laatsteVijfPogingen.length >= 6) {
+                            bruteforce.laatsteVijfPogingen.pop();
+                        }
+
+                        var end = new Date().getTime();
+                        var time = end - start;
+                        time = time / 1000;
+                        var seconds = time;
+                        bruteforce.tijdBezig = seconds.toFixed(3);
+                        this.start = time;
+
+                        $timeout(function () {
+                            doePogingAlpha(bruteforce, teller, start)
+                        }, 1);
+                    }
+                }
+
             });
         });
 
