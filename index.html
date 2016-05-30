@@ -37,7 +37,7 @@
                     Wachtwoorden pogingen:
                     <ul>
                         <li ng-repeat="poging in bruteforce.laatsteVijfPogingen">
-                            {{$scope.woordenboek}}
+                            {{poging}}
                         </li>
                     </ul>
                 </div>
@@ -55,7 +55,8 @@
         app.controller('MyCtrl', function($scope, $rootScope, $timeout){
             $scope.$on('config-loaded', function(){
                 $scope.woordenboek = $rootScope.woordenboek;
-                console.log($scope.woordenboek);
+                //console.log($scope.woordenboek);
+                var chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
                 startBruteForcing();
 
                 function startBruteForcing() {
@@ -118,11 +119,30 @@
                         }
                     }
 
-                    function doeEenPoging(bruteforce) {
-                        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 1000) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!
+                    function doeEenPoging(bruteforce, teller) {
+                        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 100) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!
+                            var string = "";
+                            var i = teller;
+                            while(i / chars.length > 0) {
+                                string = string + chars[i % chars.length];
+                                i = i - chars.length;
+                            }
+
                             bruteforce.aantalPogingen++;
+                            teller++;
+                            bruteforce.laatsteVijfPogingen.unshift(string);
+                            if(bruteforce.laatsteVijfPogingen.length >= 6)
+                            {
+                                bruteforce.laatsteVijfPogingen.pop();
+                            }
+
+                            if(string === bruteforce.wachtwoord) {
+                                bruteforce.geraden = true;
+                            }
+                            console.log(string + " " + teller);
+
                             $timeout(function () {
-                                doeEenPoging(bruteforce)
+                                doeEenPoging(bruteforce, teller)
                             }, 10);
                         }
                     }
