@@ -36,7 +36,7 @@
                 <div class="pogingen">
                     Wachtwoorden pogingen:
                     <ul>
-                        <li ng-repeat="poging in bruteforce.laatsteVijfPogingen">
+                        <li ng-repeat="poging in bruteforce.laatsteVijfPogingen track by $index">
                             {{poging}}
                         </li>
                     </ul>
@@ -53,10 +53,8 @@
 <script>
     var app = angular.module("myApp", []);
         app.controller('MyCtrl', function($scope, $rootScope, $timeout){
-            $scope.$on('config-loaded', function(){
+            $scope.$on('dictionary-loaded', function(){
                 $scope.woordenboek = $rootScope.woordenboek;
-                //console.log($scope.woordenboek);
-                var chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
                 startBruteForcing();
 
                 function startBruteForcing() {
@@ -114,39 +112,51 @@
                     for (var i = 0; i < $rootScope.bruteforces.length; i++) {
                         for (var j = 0; j < $rootScope.bruteforces[i].length; j++) {
                             var bruteforce = $rootScope.bruteforces[i][j];
-                            var teller = 1;
-                            doeEenPoging(bruteforce, teller);
-                        }
-                    }
-
-                    function doeEenPoging(bruteforce, teller) {
-                        if (bruteforce.geraden === false && bruteforce.aantalPogingen < 100) {             //!!!!!!!!!!!!!Vergeet aantal pogingen < 10000 niet weg te halen!!!!!!!!!!!!
-                            var string = "";
-                            var i = teller;
-                            while(i / chars.length > 0) {
-                                string = string + chars[i % chars.length];
-                                i = i - chars.length;
+                            if(bruteforce.techniek === "woordenboek"){
+                                doePogingWoordenboek(bruteforce);
                             }
-
-                            bruteforce.aantalPogingen++;
-                            teller++;
-                            bruteforce.laatsteVijfPogingen.unshift(string);
-                            if(bruteforce.laatsteVijfPogingen.length >= 6)
-                            {
-                                bruteforce.laatsteVijfPogingen.pop();
-                            }
-
-                            if(string === bruteforce.wachtwoord) {
-                                bruteforce.geraden = true;
-                            }
-                            console.log(string + " " + teller);
-
-                            $timeout(function () {
-                                doeEenPoging(bruteforce, teller)
-                            }, 10);
                         }
                     }
                 };
+
+                function doePogingWoordenboek(bruteforce){
+                    var done = false;
+                    var woordenboekarr = $scope.woordenboek.split('\n')
+                    var teller = 0;
+                    var start = new Date().getTime();
+
+                    while(done === false)
+                    {
+                        //List of last passwords
+                        bruteforce.laatsteVijfPogingen.unshift(woordenboekarr[teller]);
+                        if(bruteforce.laatsteVijfPogingen.length >= 6)
+                        {
+                            bruteforce.laatsteVijfPogingen.pop();
+                        }
+
+                        //check if bruteforced
+                        if(woordenboekarr[teller].match(bruteforce.wachtwoord))
+                        {
+                            done = true;
+                            bruteforce.geraden = true;
+                        }
+                        else {
+                            teller++;
+                            bruteforce.aantalPogingen++;
+                        }
+
+                        if(teller === woordenboekarr.length){
+                            done = true;
+                        }
+                    }
+
+                    //set execution time
+                    var end = new Date().getTime();
+                    var time = end - start;
+                    time = time / 1000;
+                    var seconds = time % 60;
+                    bruteforce.tijdBezig = seconds;
+                }
             });
         });
 
@@ -154,38 +164,12 @@
             $http.get('resources/wordlist.txt')
                     .success(function(data, status, headers, config) {
                         $rootScope.woordenboek = data;
-                        $rootScope.$broadcast('config-loaded');
+                        $rootScope.$broadcast('dictionary-loaded');
                     })
                     .error(function(data, status, headers, config) {
                         // log error
                         alert('error');
                     });
-//            $http.get("resources/wordlist.txt").then(function (response) {
-//                $rootScope.woordenboek = response.data;
-//                console.log($rootScope.woordenboek);
-//            });
-            //readTextFile("resources/wordlist.txt");
-//            function readTextFile(file)
-//            {
-//                var rawFile = new XMLHttpRequest();
-//                rawFile.open("GET", file, false);
-//                rawFile.onreadystatechange = function ()
-//                {
-//                    if(rawFile.readyState === 4)
-//                    {
-//                        if(rawFile.status === 200)
-//                        {
-//                            var allText = rawFile.responseText;
-//                            $rootScope.woordenboek = allText;
-//                            console.log($rootScope.woordenboek);
-//                            startBruteForcing();
-//                        }
-//                    }
-//                }
-//                rawFile.send(null);
-//            }
-
-            //startBruteForcing();
         });
 </script>
 </body>
