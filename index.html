@@ -47,7 +47,7 @@
                 <div ng-show="{{bruteforce.geraden === true}}">
                     Bruteforce successvol, wachtwoord is <span class="geraden">{{bruteforce.wachtwoord}}</span>
                 </div>
-                <div ng-show="{{bruteforce.geraden === false}}" class="nietgeraden">
+                <div ng-show="{{bruteforce.geraden === false && bruteforce.tijdBezig > 0}}" class="nietgeraden">
                     Bruteforce niet successvol, wachtwoord is {{bruteforce.wachtwoord}}
                 </div>
             </td>
