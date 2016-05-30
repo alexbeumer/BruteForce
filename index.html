@@ -12,8 +12,9 @@
     <style>
         body{
             background-color: #000;
-            color: #fff;
+            color: #00ff00;
             font-size: x-large;
+            font-family: monoscope;
         }
         td{
             width: 33%;
@@ -24,7 +25,7 @@
     </style>
 </head>
 <body>
-<div ng-app="myApp">
+<div ng-app="myApp" ng-controller="MyCtrl">
     <table class="table table-bordered">
         <tr ng-repeat="rijBruteforces in bruteforces">
             <td ng-repeat="bruteforce in rijBruteforces">
@@ -36,7 +37,7 @@
                     Wachtwoorden pogingen:
                     <ul>
                         <li ng-repeat="poging in bruteforce.laatsteVijfPogingen">
-                            {{poging}}
+                            {{$scope.woordenboek}}
                         </li>
                     </ul>
                 </div>
@@ -51,27 +52,41 @@
 <script src="js/angular.min.js"></script>
 <script>
     var app = angular.module("myApp", []);
-        app.run(function($rootScope, $timeout, $q){
-            function readTextFile(file)
-            {
-                var rawFile = new XMLHttpRequest();
-                rawFile.open("GET", file, false);
-                rawFile.onreadystatechange = function ()
-                {
-                    if(rawFile.readyState === 4)
-                    {
-                        if(rawFile.status === 200)
-                        {
-                            var allText = rawFile.responseText;
-                            $rootScope.woordenboek = allText;
-                            console.log($rootScope.woordenboek);
-                            startBruteForcing();
-                        }
-                    }
-                }
-                rawFile.send(null);
-            }
-            readTextFile("resources/wordlist.txt");
+
+        app.controller('MyCtrl', function($scope, $rootScope){
+           $scope.woordenboek = $rootScope.woordenboek;
+        });
+
+        app.run(function($rootScope, $timeout, $q, $http){
+            $rootScope.woordenboek = null;
+            $http.get("resources/wordlist.txt").then(function (response) {
+                $rootScope.woordenboek = response.data;
+                console.log($rootScope.woordenboek);
+            });
+            //readTextFile("resources/wordlist.txt");
+//            function readTextFile(file)
+//            {
+//                var rawFile = new XMLHttpRequest();
+//                rawFile.open("GET", file, false);
+//                rawFile.onreadystatechange = function ()
+//                {
+//                    if(rawFile.readyState === 4)
+//                    {
+//                        if(rawFile.status === 200)
+//                        {
+//                            var allText = rawFile.responseText;
+//                            $rootScope.woordenboek = allText;
+//                            console.log($rootScope.woordenboek);
+//                            startBruteForcing();
+//                        }
+//                    }
+//                }
+//                rawFile.send(null);
+//            }
+
+            startBruteForcing();
+
+
             function startBruteForcing() {
                 $rootScope.bruteforces = [
                     [{
